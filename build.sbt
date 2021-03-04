@@ -36,12 +36,12 @@ val compilerOptions = Seq(
 
 lazy val baseSettings = Seq(
   libraryDependencies ++= {
-    if (isDotty.value)
+    if (scalaVersion.value.startsWith("3"))
       Nil
     else
       Seq(compilerPlugin(scalafixSemanticdb))
   },
-  scalacOptions ++= { if (isDotty.value) Seq("-Ykind-projector") else compilerOptions },
+  scalacOptions ++= { if (scalaVersion.value.startsWith("3")) Seq("-Ykind-projector") else compilerOptions },
   scalacOptions in (Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports"))
   },
@@ -51,7 +51,7 @@ lazy val baseSettings = Seq(
   coverageHighlighting := true,
   Compile / doc / sources := {
     val old = (Compile / doc / sources).value
-    if (isDotty.value)
+    if (scalaVersion.value.startsWith("3"))
       Seq()
     else
       old
@@ -65,12 +65,12 @@ val metaSettings = Seq(crossScalaVersions := Seq(Scala212))
 val testSettings = Seq(
   skip in publish := true,
   libraryDependencies ++= {
-    if (isDotty.value)
+    if (scalaVersion.value.startsWith("3"))
       Nil
     else
       Seq(compilerPlugin(("org.typelevel" %% "kind-projector" % "0.11.2").cross(CrossVersion.full)))
   },
-  libraryDependencies += ("org.typelevel" %% "cats-kernel" % "2.3.0").withDottyCompat(scalaVersion.value)
+  libraryDependencies += ("org.typelevel" %% "cats-kernel" % "2.3.0").cross(CrossVersion.for3Use2_13)
 )
 
 lazy val V = _root_.scalafix.sbt.BuildInfo
